@@ -6,10 +6,10 @@
 //
 
 import Fluent
-import Foundation
 import Vapor
 
-final class Cupcake: Model, Content, @unchecked Sendable {
+/// A representation of the Cupcake data.
+final class Cupcake: DatabaseModel, @unchecked Sendable {
     static let schema = SchemaName.cupcakes.rawValue
     
     @ID(key: .id)
@@ -49,8 +49,13 @@ final class Cupcake: Model, Content, @unchecked Sendable {
     }
 }
 
-extension Cupcake: DatabaseOperation {
-    convenience init(from dto: Create) {
+extension Cupcake {
+    /// Creates a new Cupcake from the ``Create`` Model.
+    /// - Parameter dto: A ``Create`` model that comes from a request.
+    convenience init(
+        from dto: Create,
+        and req: Request? = nil
+    ) {
         self.init(
             flavor: dto.flavor,
             coverImage: dto.coverImage,
@@ -58,7 +63,12 @@ extension Cupcake: DatabaseOperation {
             price: dto.price
         )
     }
-    
+}
+
+extension Cupcake {
+    /// Transform a ``Cupcake`` model into a ``Read`` model
+    /// for send into a request.
+    /// - Returns: Returs a ``Read`` model.
     func read() throws -> Read {
         guard let id, let createAt else {
             throw Abort(.notAcceptable)
@@ -73,7 +83,12 @@ extension Cupcake: DatabaseOperation {
             createAt: createAt
         )
     }
-    
+}
+
+extension Cupcake {
+    /// Updates an existing ``Cupcake`` model
+    /// from a ``Update`` dto that comes from a Request.
+    /// - Parameter dto: An ``Update`` that comes from a Request.
     func update(from dto: Update) {
         if let updatedFlavor = dto.flavor, updatedFlavor != flavor {
             flavor = updatedFlavor

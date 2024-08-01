@@ -8,6 +8,7 @@
 import Vapor
 
 extension Cupcake {
+    /// It's responsable to creates an model for send in a request.
     struct Read: Content, Sendable {
         let id: UUID
         let flavor: String

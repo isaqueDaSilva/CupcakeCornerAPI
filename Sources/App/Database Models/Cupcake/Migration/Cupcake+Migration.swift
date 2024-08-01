@@ -8,6 +8,7 @@
 import Fluent
 
 extension Cupcake {
+    /// Creates a Migration plan for Cupcake model to handle with the database.
     struct Migration: AsyncMigration {
         let schemaName = SchemaName.cupcakes.rawValue
         
