@@ -8,7 +8,7 @@
 import Fluent
 import Vapor
 
-/// A protocol that enables to create an schema for the database
+/// A protocol that enables to create a schema for the database
 /// and a Read model based on the model saved
 /// for send in the request.
 protocol DatabaseModel: Model, Content {
