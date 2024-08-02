@@ -7,6 +7,7 @@
 
 import Foundation
 
+/// Stores the all schema names for the all tables.
 enum SchemaName: String {
     case user = "user"
     case token = "user_token"
