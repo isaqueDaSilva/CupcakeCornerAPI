@@ -6,3 +6,7 @@
 //
 
 import Foundation
+
+enum Status: String, Codable {
+    case ordered, readyForDelivery, delivered
+}
