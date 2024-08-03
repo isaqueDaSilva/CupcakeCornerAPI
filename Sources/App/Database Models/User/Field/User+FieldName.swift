@@ -13,6 +13,8 @@ extension User {
         case name = "name"
         case email = "email"
         case passwordHash = "password_hash"
+        case password = "password"
+        case confirmPassword = "confirm_password"
         case role = "role"
         case paymentMethod = "payment_method"
         
@@ -21,7 +23,7 @@ extension User {
         }
         
         var validationKey: ValidationKey {
-            ValidationKey(stringValue: self.rawValue) ?? ""
+            ValidationKey(stringValue: self.rawValue) ?? "" 
         }
     }
 }
