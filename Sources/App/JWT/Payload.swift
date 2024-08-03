@@ -5,16 +5,32 @@
 //  Created by Isaque da Silva on 02/08/24.
 //
 
+import Foundation
 import JWT
+import Vapor
 
-struct Payload: JWTPayload {
+struct Payload: Content, Authenticatable, JWTPayload {
     
-    var subject: SubjectClaim
-    var expiration: ExpirationClaim
-    var isAdmin: Bool
+    // The token is valid for 14 days after your creation.
+    let expirationTime: TimeInterval = (60 * 60 * 24 * 14)
     
-    func verify(using algorithm: some JWTKit.JWTAlgorithm) async throws {
+    let subject: SubjectClaim
+    let expiration: ExpirationClaim
+    let userID: UUID
+    
+    func verify(using algorithm: some JWTAlgorithm) async throws {
         try self.expiration.verifyNotExpired()
+    }
+    
+    init(with userID: UUID) throws {
+        guard let subjectClaim = Environment.get("CUPCAKE_CORNER_JWTSUB") else {
+            print("CUPCAKE_CORNER_JWTSUB was not found.")
+            throw Abort(.notFound)
+        }
+        
+        self.subject = .init(value: subjectClaim)
+        self.expiration = .init(value: Date().addingTimeInterval(expirationTime))
+        self.userID = userID
     }
 }
 
@@ -22,6 +38,6 @@ extension Payload {
     enum CodingKeys: String, CodingKey {
         case subject = "sub"
         case expiration = "exp"
-        case isAdmin = "admin"
+        case userID = "user_id"
     }
 }
