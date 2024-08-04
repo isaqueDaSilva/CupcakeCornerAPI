@@ -17,7 +17,7 @@ extension ProtectedRoutesProtocol {
         return routes.grouped(userAuthenticator, userGuardMiddleware)
     }
     
-    func tokenProtectedRoute(by routes: RoutesBuilder) -> RoutesBuilder {
+    func tokenProtectedRoute(with routes: RoutesBuilder) -> RoutesBuilder {
         let tokenAuthenticator = Payload.authenticator()
         let tokenGuardMiddleware = Payload.guardMiddleware()
         
