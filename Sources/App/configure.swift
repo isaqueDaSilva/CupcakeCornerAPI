@@ -4,19 +4,20 @@ import FluentPostgresDriver
 import JWT
 import Vapor
 
-// configures your application
+/// Base configuration of the app.
 public func configure(_ app: Application) async throws {
+    // MARK: Server configuration
     let hostname = "api.cupcakecorner"
     let port = 8443
-    // uncomment to serve files from /Public folder
-    // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     
+    // Makes server runs in HTTP/2
     app.http.server.configuration.supportVersions = [.two]
     app.http.server.configuration.hostname = hostname
     app.http.server.configuration.port = port
     
     try await app.server.start(address: .hostname(hostname, port: port))
     
+    // MARK: JWT Key Configuration
     guard let jwtSecret = Environment.get("JWT_SECRET") else {
         print("Failed to get a JWT secret.")
         return
@@ -37,6 +38,6 @@ public func configure(_ app: Application) async throws {
     // MARK: Migrations.
     app.migrations.add(Cupcake.Migration())
 
-    // register routes
+    // MARK: Register Routes
     try routes(app)
 }
