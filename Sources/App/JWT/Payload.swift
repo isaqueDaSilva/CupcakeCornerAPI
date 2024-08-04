@@ -10,7 +10,7 @@ import JWT
 import Vapor
 
 struct Payload: Content, Authenticatable, JWTPayload {
-    
+    let id: UUID
     // The token is valid for 14 days after your creation.
     let expirationTime: TimeInterval = (60 * 60 * 24 * 14)
     
@@ -23,6 +23,7 @@ struct Payload: Content, Authenticatable, JWTPayload {
     }
     
     init(with userID: UUID) throws {
+        self.id = UUID()
         guard let subjectClaim = Environment.get("CUPCAKE_CORNER_JWTSUB") else {
             print("CUPCAKE_CORNER_JWTSUB was not found.")
             throw Abort(.notFound)
@@ -36,6 +37,7 @@ struct Payload: Content, Authenticatable, JWTPayload {
 
 extension Payload {
     enum CodingKeys: String, CodingKey {
+        case id = "id" 
         case subject = "sub"
         case expiration = "exp"
         case userID = "user_id"
