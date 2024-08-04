@@ -29,6 +29,12 @@ final class User: DatabaseModel, @unchecked Sendable {
     @Enum(key: FieldName.paymentMethod.key)
     var paymentMethod: PaymentMethod
     
+    @Children(for: \.$user)
+    var tokens: [Token]
+    
+    @Children(for: \.$user)
+    var orders: [Order]
+    
     init() { }
     
     private init(
