@@ -12,7 +12,6 @@ extension User {
         let name: String
         let email: String
         let password: String
-        let confirmPassword: String
         let role: Role
         let paymentMethod: PaymentMethod
     }

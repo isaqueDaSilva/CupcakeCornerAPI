@@ -10,9 +10,7 @@ import Vapor
 
 extension User {
     enum Service {
-        private static func getUser(with req: Request, and id: String) async throws -> User {
-            let userID = UUID(uuidString: id)
-            
+        private static func getUser(with req: Request, and userID: UUID) async throws -> User {
             guard let user = try await User.find(userID, on: req.db) else {
                 throw Abort(.notFound)
             }
@@ -20,22 +18,22 @@ extension User {
             return user
         }
         
-        static func create(from req: Request, and dto: Create) async throws -> Read {
+        static func create(from req: Request, and dto: Create) async throws -> HTTPStatus {
             let passwordHash = try Bcrypt.hash(dto.password)
             let newUser = User(from: dto, and: passwordHash)
             
             try await newUser.save(on: req.db)
             
-            return try newUser.read()
+            return .ok
         }
         
-        static func get(with req: Request, and id: String) async throws -> Read {
+        static func get(with req: Request, and id: UUID) async throws -> Read {
             let user = try await getUser(with: req, and: id)
             
             return try user.read()
         }
         
-        static func update(with req: Request, _ id: String, and dto: Update) async throws -> Read {
+        static func update(with req: Request, _ id: UUID, and dto: Update) async throws -> Read {
             let user = try await getUser(with: req, and: id)
             
             user.update(from: dto)
@@ -45,7 +43,7 @@ extension User {
             return try user.read()
         }
         
-        static func delete(with req: Request, and id: String) async throws -> HTTPStatus {
+        static func delete(with req: Request, and id: UUID) async throws -> HTTPStatus {
             let user = try await getUser(with: req, and: id)
             
             try await user.delete(on: req.db)
