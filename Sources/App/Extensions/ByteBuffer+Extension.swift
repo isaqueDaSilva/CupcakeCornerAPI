@@ -8,8 +8,8 @@
 import Vapor
 
 extension ByteBuffer {
-    func decodeWebSocketMessage<T: Content>(_ model: T.Type) throws -> WebSocketMessage<T> {
-        let webSocketMessage = try JSONDecoder().decode(WebSocketMessage<T>.self, from: self)
+    func decodeWebSocketMessage<T: Content>(_ model: T.Type) throws -> Order.WebSocketMessage<T> {
+        let webSocketMessage = try JSONDecoder().decode(Order.WebSocketMessage<T>.self, from: self)
         
         return webSocketMessage
     }
