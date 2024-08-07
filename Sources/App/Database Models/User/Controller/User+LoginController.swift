@@ -17,7 +17,7 @@ extension User {
                 try await login(with: request)
             }
             
-            tokenProtectedRoute.get("validateLoggedInUser") { request async throws -> HTTPStatus in
+            tokenProtectedRoute.get("validate-token") { request async throws -> HTTPStatus in
                 try await isTokenValid(with: request)
             }
             
