@@ -5,7 +5,6 @@
 //  Created by Isaque da Silva on 06/08/24.
 //
 
-import Fluent
 import Vapor
 
 extension User {
