@@ -13,18 +13,12 @@ extension Order {
         static func create(
             with req: Request,
             _ dto: Create,
-            and user: User
+            _ userRole: Role,
+            _ userID: UUID,
+            and cupcakeID: UUID
         ) async throws -> Read {
-            let cupcake = try await Cupcake.find(dto.cupcakeID, on: req.db)
-            
-            guard user.role == .client else {
+            guard userRole == .client else {
                 throw Abort(.unauthorized)
-            }
-            
-            guard let cupcakeID = try cupcake?.requireID(),
-                  let userID = try? user.requireID()
-            else {
-                throw Abort(.internalServerError)
             }
             
             let newOrder = Order(from: dto, cupcakeID, and: userID)
@@ -34,7 +28,7 @@ extension Order {
             return try newOrder.read()
         }
         
-        static func read(with req: Request, and userRole: Role, and userID: UUID) async throws -> [Read] {
+        static func read(with req: Request, _ userRole: Role, and userID: UUID) async throws -> [Read] {
             let ordersQuery = Order.query(on: req.db)
             
             if userRole == .client {
@@ -55,7 +49,7 @@ extension Order {
             return try orders.readAll()
         }
         
-        static func update(with req: Request, _ userRole: Role, and dto: Update) async throws -> Read {
+        static func update(with req: Request, _ userRole: Role, and dto: Update) async throws -> (Read, UUID) {
             guard userRole == .admin else {
                 throw Abort(.unauthorized)
             }
@@ -68,7 +62,14 @@ extension Order {
             
             try await order.save(on: req.db)
             
-            return try order.read()
+            guard let userID = try order.user?.requireID() else {
+                throw Abort(.notAcceptable)
+            }
+            
+            guard let order = try? order.read() else {
+                throw Abort(.notAcceptable)
+            }
+            return (order, userID)
         }
     }
 }
