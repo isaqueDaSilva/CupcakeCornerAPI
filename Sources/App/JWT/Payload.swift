@@ -9,6 +9,7 @@ import Foundation
 import JWT
 import Vapor
 
+/// Represent the JWT payload data for generates an token based in those informations.
 struct Payload: Content, Authenticatable, JWTPayload {
     let id: UUID
     // The token is valid for 14 days after your creation.

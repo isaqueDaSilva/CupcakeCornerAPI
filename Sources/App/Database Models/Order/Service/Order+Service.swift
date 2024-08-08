@@ -9,7 +9,20 @@ import Fluent
 import Vapor
 
 extension Order {
+    /// Reunes all methos for manipulates
+    /// an ``Order`` model into a specific route.
     enum Service {
+        
+        /// Creates a new ``Order`` in database.
+        /// - Parameters:
+        ///   - req: The current Request for perform some actions.
+        ///   - dto: The ``Order/Create`` DTO for creates a
+        ///    new ``Order``based into your data.
+        ///   - userRole: The role of the user that is send a request.
+        ///   - userID: The ID of the user that is send a request.
+        ///   - cupcakeID: The ID of the ``Cupcake``
+        ///    that the user is requsting.
+        /// - Returns: Returns a ``Order/Read`` DTO for send into the route back to user.
         static func create(
             with req: Request,
             _ dto: Create,
@@ -28,7 +41,17 @@ extension Order {
             return try newOrder.read()
         }
         
-        static func read(with req: Request, _ userRole: Role, and userID: UUID) async throws -> [Read] {
+        /// Fetch orders saved int the database for send back to user.
+        /// - Parameters:
+        ///   - req: The current Request for perform some actions.
+        ///   - userRole: The role of the user that is send a request.
+        ///   - userID: The ID of the user that is send a request.
+        /// - Returns: Returns an array of ``Order/Read`` DTOs for send into the route back to user.
+        static func read(
+            with req: Request,
+            _ userRole: Role,
+            and userID: UUID
+        ) async throws -> [Read] {
             let ordersQuery = Order.query(on: req.db)
             
             if userRole == .client {
@@ -49,7 +72,19 @@ extension Order {
             return try orders.readAll()
         }
         
-        static func update(with req: Request, _ userRole: Role, and dto: Update) async throws -> (Read, UUID) {
+        
+        /// Updates an ``Order`` into database.
+        /// - Parameters:
+        ///   - req: The current Request for perform some actions.
+        ///   - userRole: The role of the user that is send a request.
+        ///   - dto: An ``Order/Update`` DTO that is stores
+        ///   all necessary informations for updates an ``Order`` into database.
+        /// - Returns: Returns a ``Order/Read`` DTO for send into the route back to user.
+        static func update(
+            with req: Request,
+            _ userRole: Role,
+            and dto: Update
+        ) async throws -> (Read, UUID) {
             guard userRole == .admin else {
                 throw Abort(.unauthorized)
             }

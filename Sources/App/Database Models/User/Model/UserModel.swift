@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  UserModel.swift
 //  
 //
 //  Created by Isaque da Silva on 01/08/24.
@@ -8,6 +8,7 @@
 import Fluent
 import Vapor
 
+/// A representation of the User data.
 final class User: DatabaseModel, @unchecked Sendable {
     static let schema = SchemaName.user.rawValue
     
@@ -55,6 +56,10 @@ final class User: DatabaseModel, @unchecked Sendable {
 }
 
 extension User {
+    /// Creates a new User from the ``Create`` DTO model.
+    /// - Parameters:
+    ///   - dto: A ``Create`` model that comes from a request.
+    ///   - passwordHash: A cauculated hash of the password for stores into database.
     convenience init(from dto: Create, and passwordHash: String) {
         self.init(
             name: dto.name,
@@ -67,6 +72,9 @@ extension User {
 }
 
 extension User {
+    /// Transform a ``User`` model into a ``Read`` model
+    /// for send into a request.
+    /// - Returns: Returs a ``Read`` model.
     func read() throws -> Read {
         guard let id else {
             throw Abort(.notAcceptable)
@@ -83,6 +91,9 @@ extension User {
 }
 
 extension User {
+    /// Updates an existing ``User`` model
+    /// from a ``Update`` dto that comes from a Request.
+    /// - Parameter dto: An ``Update`` that comes from a Request.
     func update(from dto: Update) {
         if let updatedName = dto.name,
            updatedName != name {

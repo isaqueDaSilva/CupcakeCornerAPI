@@ -8,6 +8,7 @@
 import Fluent
 import Vapor
 
+/// Representation of data for Order model.
 final class Order: DatabaseModel, @unchecked Sendable {
     static let schema = SchemaName.order.rawValue
     
@@ -74,6 +75,8 @@ final class Order: DatabaseModel, @unchecked Sendable {
 }
 
 extension Order {
+    /// Creates a new ``Oder`` model
+    /// from ``Create`` DTO.
     convenience init(
         from dto: Create,
         _ cupcakeID: Cupcake.IDValue,
@@ -92,6 +95,7 @@ extension Order {
 }
 
 extension Order {
+    /// Transform an ``Order`` model into ``Read`` DTO.
     func read() throws -> Read {
         guard let orderTime, let id else {
             throw Abort(.notAcceptable)
@@ -115,6 +119,8 @@ extension Order {
 }
 
 extension Order {
+    /// Updates an ``Order`` model
+    /// from a ``Update`` DTO.
     func update(from dto: Update) {
         if dto.status != status {
             status = dto.status

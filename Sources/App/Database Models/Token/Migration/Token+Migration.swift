@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Token+Migration.swift
 //  
 //
 //  Created by Isaque da Silva on 04/08/24.
@@ -8,6 +8,7 @@
 import Fluent
 
 extension Token {
+    /// A Migration plan for perform actions into database.
     struct Migration: AsyncMigration {
         private let tokenSchemaName = SchemaName.token.rawValue
         private let userSchemaName = SchemaName.user.rawValue

@@ -8,6 +8,7 @@
 import Fluent
 
 extension PaymentMethod {
+    /// A Migration plan for perform actions into database.
     struct Migration: AsyncMigration {
         let paymentMethodSchemaName = SchemaName.paymentMethod.rawValue
         

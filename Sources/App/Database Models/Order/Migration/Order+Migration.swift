@@ -8,6 +8,7 @@
 import Fluent
 
 extension Order {
+    /// Makes migration of the Order model in database.
     struct Migration: AsyncMigration {
         let orderSchemaName = SchemaName.order.rawValue
         let userSchemaName = SchemaName.user.rawValue
@@ -15,6 +16,7 @@ extension Order {
         let statusSchemaName = SchemaName.status.rawValue
         let idFieldKey = FieldKey(stringLiteral: "id")
         
+        /// Creates a new table for ``Order`` model in database.
         func prepare(on database: any Database) async throws {
             let status = try await database.enum(statusSchemaName).read()
             
@@ -33,6 +35,8 @@ extension Order {
                 .create()
         }
         
+        /// Perform some changes in ``Order`` table in database
+        /// like update or delete action.
         func revert(on database: any Database) async throws {
             try await database.schema(orderSchemaName)
                 .delete()

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  User+FieldName.swift
 //  
 //
 //  Created by Isaque da Silva on 02/08/24.
@@ -9,6 +9,7 @@ import Fluent
 import Vapor
 
 extension User {
+    /// It's responsable to store all field names for a User Model.
     enum FieldName: String, FieldKeysProtocol, ValidationProtocol {
         case name = "name"
         case email = "email"

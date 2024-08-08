@@ -9,6 +9,7 @@ import Fluent
 import Vapor
 
 extension Order {
+    /// Field keys collection of all properties of the Order model in database.
     enum FieldName: String, FieldKeysProtocol, ValidationProtocol {
         case user = "user_id"
         case cupcake = "cupcake_id"

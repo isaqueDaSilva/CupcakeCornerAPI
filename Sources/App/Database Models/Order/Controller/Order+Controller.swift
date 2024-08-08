@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  Order+Controller.swift
+//
 //
 //  Created by Isaque da Silva on 8/6/24.
 //
@@ -8,6 +8,7 @@
 import Vapor
 
 extension Order {
+    /// Reunes all routes for manipulates an Order model.
     struct Controller: RouteCollection, ProtectedRoutesProtocol {
         let wsManager = WebSocketManager()
         
@@ -24,7 +25,7 @@ extension Order {
             }
         }
         
-        private func getUser(with req: Request) async throws -> (UUID, Role) {
+        private func getUserInfo(with req: Request) async throws -> (UUID, Role) {
             let jwtToken = try req.auth.require(Payload.self)
             
             guard let user = try await User.find(jwtToken.userID, on: req.db) else {
@@ -38,7 +39,7 @@ extension Order {
         
         @Sendable
         private func create(with req: Request) async throws -> HTTPStatus {
-            let (userID, userRole) = try await getUser(with: req)
+            let (userID, userRole) = try await getUserInfo(with: req)
             
             let newOrderDTO = try req.content.decode(Create.self)
             

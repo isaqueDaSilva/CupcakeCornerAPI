@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  User+Migration.swift
 //  
 //
 //  Created by Isaque da Silva on 02/08/24.
@@ -8,6 +8,7 @@
 import Fluent
 
 extension User {
+    /// Creates a Migration plan for User model to handle with the database.
     struct Migration: AsyncMigration {
         let userSchemaName = SchemaName.user.rawValue
         let roleSchemaName = SchemaName.role.rawValue

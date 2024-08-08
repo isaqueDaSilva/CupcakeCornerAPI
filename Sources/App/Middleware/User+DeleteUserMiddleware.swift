@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  User+DeleteUserMiddleware.swift
+//
 //
 //  Created by Isaque da Silva on 06/08/24.
 //
@@ -8,6 +8,7 @@
 import Vapor
 
 extension User {
+    /// Checks if the user has some undelivered order and also delete all tokens saved with user ID.
     struct DeleteUserMiddleware: AsyncMiddleware {
         func respond(to request: Request, chainingTo next: any AsyncResponder) async throws -> Response {
             let jwtToken = try request.auth.require(Payload.self)

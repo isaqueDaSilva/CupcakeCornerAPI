@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  User+Seed.swift
 //  
 //
 //  Created by Isaque da Silva on 8/7/24.
@@ -9,6 +9,7 @@ import Fluent
 import Vapor
 
 extension User {
+    /// A default user admin to make login in the system and creates orhers admin.
     struct Seed: AsyncMigration {
         let adminName = Environment.get("ADMIN_NAME")
         let adminEmail = Environment.get("ADMIN_EMAIL")

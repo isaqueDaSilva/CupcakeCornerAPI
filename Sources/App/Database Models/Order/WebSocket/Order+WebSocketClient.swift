@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  Order+WebSocketClient.swift
+//
 //
 //  Created by Isaque da Silva on 8/7/24.
 //
@@ -8,6 +8,7 @@
 import Vapor
 
 extension Order {
+    /// An representation of the Client that is connected into WebSocket channel.
     final class WebSocketClient: @unchecked Sendable {
         private let id: UUID
         private let role: Role

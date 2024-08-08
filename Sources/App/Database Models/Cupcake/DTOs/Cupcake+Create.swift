@@ -8,7 +8,7 @@
 import Vapor
 
 extension Cupcake {
-    /// It's responsable to decoding a Create Model
+    /// It's responsable to decoding a ``Create`` Model
     /// that comes from a Request.
     struct Create: Content, Sendable {
         let flavor: String

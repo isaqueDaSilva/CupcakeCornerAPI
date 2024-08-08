@@ -1,6 +1,6 @@
 //
-//  File.swift
-//  
+//  Order+WebSocketManager.swift
+//
 //
 //  Created by Isaque da Silva on 8/7/24.
 //
@@ -15,9 +15,19 @@ typealias Message = Order.WebSocketMessage
 
 // MARK: Manager
 extension Order {
+    /// Handler with the all WS request.
     final class WebSocketManager: @unchecked Sendable {
         private var clients = [WSClient]()
         
+        
+        /// Connect an user into WebSocket chnnel.
+        /// - Parameters:
+        ///   - wsChannel: The current WebSocket channel
+        ///   that utilizing for connect the user into channel.
+        ///   - request: The current Request for perform some actions.
+        ///   - userID: The ID of the user for creates a new ``WSClient``
+        ///   and maintaing the user connected.
+        ///   - userRole: The role of the user.
         func connect(
             with wsChannel: WebSocket,
             _ request: Request,
@@ -68,7 +78,9 @@ extension WSManager {
         _ userID: UUID,
         and userRole: Role
     ) {
+        // Checks if has some message valid for send
         if let message = try? buffer.decodeWebSocketMessage(Order.Receive.self) {
+            // Checks if the user has some connection.
             if let client = self.get(by: webSocket) {
                 client.insert(message.data)
                 self.notify(client, with: request)
@@ -132,13 +144,19 @@ extension WSManager {
 
 // Notify client
 extension WSManager {
+    /// Notify bolth parties that is connected into this channel.
+    /// - Parameters:
+    ///   - client: The client's model that is make a request.
+    ///   - request: The current request that's using for perform some actions into database.
     private func notify(_ client: WSClient, with request: Request) {
         let clientID = client.getID()
         let webSocket = client.getSocket()
         let clientRole = client.getRole()
         
+        // Checks if the channel is active
         guard !webSocket.isClosed else { return }
         
+        // Checks if the client has some data for send in the channel.
         guard let data = try? client.getData() else {
             Task {
                 try? await webSocket.close(code: .unacceptableData)
@@ -190,6 +208,12 @@ extension WSManager {
 
 // Get All orders
 extension WSManager {
+    /// Gets all orders saved in the database that the user's role permiting.
+    /// - Parameters:
+    ///   - request: The current request that's using for perform some actions into database.
+    ///   - currentWS: The current WebSocket channel used by user.
+    ///   - clientRole: The client's role.
+    ///   - clientID: The client's ID.
     private func getAllOrders(
         with request: Request,
         _ currentWS: WebSocket,
@@ -210,6 +234,11 @@ extension WSManager {
 
 // Update an Order
 extension WSManager {
+    /// Updates an specific order into database.
+    /// - Parameters:
+    ///   - client: The client's model that is make a request
+    ///   - request: The current request that's using for perform some actions into database.
+    ///   - updatedOrderDTO: An DTO model that is reunes all information for update an Order model into database.
     private func updateAnOrder(
         with client: WSClient,
         _ request: Request,
@@ -239,7 +268,18 @@ extension WSManager {
 
 // Send message
 extension WSManager {
-    private func send<M: Encodable>(_ message: M, in currentWS: WebSocket) {
+    /// Send a message in the current WebSocket channel.
+    ///
+    /// > Important: Please, in `message` parameter utilize the ``Message``
+    /// model as representation of the message.
+    ///
+    /// - Parameters:
+    ///   - message: An encodable object that is contain a message for send.
+    ///   - currentWS: The current WebSocket channel used by user.
+    private func send<M: Encodable>(
+        _ message: M,
+        in currentWS: WebSocket
+    ) {
         guard let data = try? JSONEncoder().encode(message) else {
             Task {
                 try await currentWS.close(code: .unexpectedServerError)
@@ -252,6 +292,12 @@ extension WSManager {
 }
 
 extension WSManager {
+    /// Send an Order that was created into database
+    /// back to all conecteds admins and user into WS channel.
+    ///
+    /// - Parameters:
+    ///   - order: A readable representation of the Order.
+    ///   - client: The client's model that is make a request
     func send(_ order: Order.Read, for client: UUID) {
         let sendNewOrder: Order.Send = .newOrder(order)
         let message = Message<Order.Send>(data: sendNewOrder)

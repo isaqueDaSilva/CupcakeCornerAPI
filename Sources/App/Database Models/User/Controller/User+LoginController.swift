@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  User+LoginController.swift
 //  
 //
 //  Created by Isaque da Silva on 03/08/24.
@@ -8,6 +8,7 @@
 import Vapor
 
 extension User {
+    /// Reunes specifics routes for handle with the authentication and validates token.
     struct LoginController: RouteCollection, ProtectedRoutesProtocol {
         func boot(routes: any RoutesBuilder) throws {
             let userProtectedRoute = userProtectedRoute(by: routes)
@@ -30,6 +31,7 @@ extension User {
             try req.auth.require(Payload.self)
         }
         
+        @Sendable
         private func login(with req: Request) async throws -> JWTToken {
             let user = try req.auth.require(User.self)
             
@@ -62,6 +64,7 @@ extension User {
             return JWTToken(from: jwtToken)
         }
         
+        @Sendable
         private func isTokenValid(with req: Request) async throws -> HTTPStatus {
             let jwtToken = try getToken(with: req)
             
@@ -77,6 +80,7 @@ extension User {
             return .ok
         }
         
+        @Sendable
         private func logout(with req: Request) async throws -> HTTPStatus {
             let jwtToken = try getToken(with: req)
             

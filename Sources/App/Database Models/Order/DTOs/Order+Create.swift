@@ -8,6 +8,9 @@
 import Vapor
 
 extension Order {
+    /// This DTO model is responsable to decoding
+    /// a ``Order/Create`` and create a new
+    /// ``Order`` model in database.
     struct Create: Content, Sendable {
         let cupcakeID: UUID
         let quantity: Int

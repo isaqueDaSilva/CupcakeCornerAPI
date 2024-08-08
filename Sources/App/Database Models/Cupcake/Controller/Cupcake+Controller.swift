@@ -8,6 +8,7 @@
 import Vapor
 
 extension Cupcake {
+    /// Reunes all routes for manipulates a Cupcake model.
     struct Controller: RouteCollection, ProtectedRoutesProtocol {
         func boot(routes: any RoutesBuilder) throws {
             let cupcakePath = routes.grouped("cupcake")

@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  ApplicationType.swift
 //  
 //
 //  Created by Isaque da Silva on 03/08/24.

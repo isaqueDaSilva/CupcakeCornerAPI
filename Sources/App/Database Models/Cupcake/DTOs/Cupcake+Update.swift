@@ -8,7 +8,7 @@
 import Vapor
 
 extension Cupcake {
-    /// It's responsable to decoding an Update model
+    /// It's responsable to decoding an ``Update`` model
     /// that comes from a request
     struct Update: Content, Sendable {
         let flavor: String?

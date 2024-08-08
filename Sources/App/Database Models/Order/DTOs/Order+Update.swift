@@ -8,6 +8,8 @@
 import Vapor
 
 extension Order {
+    /// This DTO model is responsable to decoding
+    /// updated informations about a some order saved.
     struct Update: Content, Sendable {
         let id: UUID
         let status: Status

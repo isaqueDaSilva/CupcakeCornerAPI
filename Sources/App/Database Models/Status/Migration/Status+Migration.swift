@@ -1,5 +1,5 @@
 //
-//  File.swift
+//  Status+Migration.swift
 //  
 //
 //  Created by Isaque da Silva on 02/08/24.
@@ -8,6 +8,7 @@
 import Fluent
 
 extension Status {
+    /// A Migration plan for perform actions into database.
     struct Migration: AsyncMigration {
         let statusSchemaName = SchemaName.status.rawValue
         

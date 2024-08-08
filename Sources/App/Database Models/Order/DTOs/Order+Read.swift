@@ -8,6 +8,8 @@
 import Vapor
 
 extension Order {
+    /// This DTO model is responsable for send
+    /// a ``Order`` model into a readable format.
     struct Read: Content, Sendable {
         let id: UUID
         let userName: String
