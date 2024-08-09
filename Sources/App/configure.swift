@@ -6,16 +6,6 @@ import Vapor
 
 /// Base configuration of the app.
 public func configure(_ app: Application) async throws {
-    // MARK: Server configuration
-    let hostname = "api.cupcakecorner"
-    let port = 8443
-    
-    app.http.server.configuration.supportVersions = [.two]
-    app.http.server.configuration.hostname = hostname
-    app.http.server.configuration.port = port
-    
-    try await app.server.start(address: .hostname(hostname, port: port))
-    
     // MARK: JWT Key Configuration
     guard let jwtSecret = Environment.get("JWT_SECRET") else {
         print("Failed to get a JWT secret.")
