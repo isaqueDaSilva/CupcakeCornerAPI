@@ -30,10 +30,6 @@ extension Order {
             _ userID: UUID,
             and cupcakeID: UUID
         ) async throws -> Read {
-            guard userRole == .client else {
-                throw Abort(.unauthorized)
-            }
-            
             let newOrder = Order(from: dto, cupcakeID, and: userID)
             
             try await newOrder.create(on: req.db)
@@ -82,13 +78,8 @@ extension Order {
         /// - Returns: Returns a ``Order/Read`` DTO for send into the route back to user.
         static func update(
             with req: Request,
-            _ userRole: Role,
             and dto: Update
         ) async throws -> (Read, UUID) {
-            guard userRole == .admin else {
-                throw Abort(.unauthorized)
-            }
-            
             guard let order = try await Order.find(dto.id, on: req.db) else {
                 throw Abort(.notFound)
             }

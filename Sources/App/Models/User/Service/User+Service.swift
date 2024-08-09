@@ -24,21 +24,6 @@ extension User {
             return user
         }
         
-        /// Checks is the authenticate user is an admin for perform an action.
-        /// - Parameter req: The current request model used for process the action.
-        /// - Returns: Returns a boolean value that indicates if the user is admin or not.
-        private static func isAdmin(with req: Request) async throws -> Bool {
-            let jwtToken = try req.auth.require(Payload.self)
-            
-            guard let user = try? await getUser(with: req, and: jwtToken.userID),
-                  user.role == .admin
-            else {
-                return false
-            }
-            
-            return true
-        }
-        
         
         /// Creates a new User in the database
         /// - Parameters:
@@ -50,7 +35,7 @@ extension User {
             // marked as admin into your role,
             // will be checked if there is created by another admin.
             if dto.role == .admin {
-                guard try await isAdmin(with: req) else {
+                guard try await User.isAdmin(with: req) else {
                     throw Abort(.unauthorized)
                 }
             }

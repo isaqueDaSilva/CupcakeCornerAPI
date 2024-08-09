@@ -106,3 +106,20 @@ extension User {
         }
     }
 }
+
+extension User {
+    /// Checks if the current user is an admin.
+    /// - Parameter req: The current Request type utilized in the request.
+    /// - Returns: Returns an boolean value that indicates if the user is or not an admin.
+    static func isAdmin(with req: Request) async throws -> Bool {
+        let jwtToken = try req.auth.require(Payload.self)
+        
+        guard let user = try await User.find(jwtToken.userID, on: req.db),
+              user.role == .admin
+        else {
+            return false
+        }
+        
+        return true
+    }
+}

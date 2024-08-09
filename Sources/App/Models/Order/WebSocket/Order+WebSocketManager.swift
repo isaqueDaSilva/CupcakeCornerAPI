@@ -244,9 +244,12 @@ extension WSManager {
         _ request: Request,
         and updatedOrderDTO: Order.Update
     ) async throws {
+        guard client.getRole() == .admin else {
+            throw Abort(.unauthorized)
+        }
+        
         let (updatedOrder, userID) = try await OrderService.update(
             with: request,
-            client.getRole(),
             and: updatedOrderDTO
         )
         

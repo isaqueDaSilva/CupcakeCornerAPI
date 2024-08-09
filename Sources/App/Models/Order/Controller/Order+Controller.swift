@@ -41,6 +41,10 @@ extension Order {
         private func create(with req: Request) async throws -> HTTPStatus {
             let (userID, userRole) = try await getUserInfo(with: req)
             
+            guard userRole == .client else {
+                throw Abort(.unauthorized)
+            }
+            
             let newOrderDTO = try req.content.decode(Create.self)
             
             guard let cupcake = try await Cupcake.find(
