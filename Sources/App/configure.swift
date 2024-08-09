@@ -16,7 +16,6 @@ public func configure(_ app: Application) async throws {
     
     // MARK: Database configuration.
     guard let databaseKey = Environment.get("DATABASE_KEY") else {
-        await app.server.shutdown()
         throw Abort(.unauthorized)
     }
     
