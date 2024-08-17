@@ -18,10 +18,6 @@ extension User {
                 try await login(with: request)
             }
             
-            tokenProtectedRoute.get("validate-token") { request async throws -> HTTPStatus in
-                try await isTokenValid(with: request)
-            }
-            
             tokenProtectedRoute.delete("user", "logout") { request async throws -> HTTPStatus in
                 try await logout(with: request)
             }
@@ -65,22 +61,6 @@ extension User {
         }
         
         @Sendable
-        private func isTokenValid(with req: Request) async throws -> HTTPStatus {
-            let jwtToken = try getToken(with: req)
-            
-            let tokenSaved = try await Token.query(on: req.db)
-                .filter(\.$user.$id, .equal, jwtToken.userID)
-                .with(\.$user)
-                .first()
-            
-            guard let tokenSaved, tokenSaved.isValid else {
-                throw Abort(.unauthorized)
-            }
-            
-            return .ok
-        }
-        
-        @Sendable
         private func logout(with req: Request) async throws -> HTTPStatus {
             let jwtToken = try getToken(with: req)
             
@@ -98,9 +78,7 @@ extension User {
                 throw Abort(.notFound)
             }
             
-            token.update(isValid: false)
-            
-            try await token.save(on: req.db)
+            try await token.delete(on: req.db)
             
             return .ok
         }

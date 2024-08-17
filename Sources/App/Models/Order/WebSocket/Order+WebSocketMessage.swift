@@ -22,7 +22,6 @@ extension Order {
     }
     
     enum Receive: Content, Sendable {
-        case get
         case update(Order.Update)
         case disconnect
     }

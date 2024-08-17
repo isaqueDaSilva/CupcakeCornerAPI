@@ -14,8 +14,8 @@ extension Role {
         
         func prepare(on database: any Database) async throws {
             let _ = try await database.enum(roleSchemaName)
-                .case("admin")
-                .case("client")
+                .case(Role.admin.rawValue)
+                .case(Role.client.rawValue)
                 .create()
         }
         

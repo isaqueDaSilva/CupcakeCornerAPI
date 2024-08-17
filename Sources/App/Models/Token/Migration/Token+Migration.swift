@@ -17,7 +17,7 @@ extension Token {
             try await database.schema(tokenSchemaName)
                 .id()
                 .field(FieldName.jwtID.key, .uuid, .required)
-                .field(FieldName.user.key, .uuid, .references(userSchemaName, "id"))
+                .field(FieldName.user.key, .uuid, .references(userSchemaName, "id", onDelete: .cascade))
                 .field(FieldName.isValid.key, .bool, .required)
                 .unique(on: FieldName.jwtID.key)
                 .create()

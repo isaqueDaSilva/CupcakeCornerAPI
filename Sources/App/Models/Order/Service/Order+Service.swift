@@ -34,7 +34,17 @@ extension Order {
             
             try await newOrder.create(on: req.db)
             
-            return try newOrder.read()
+            guard let order = try await Order.query(on: req.db)
+                .filter(\.$id, .equal, newOrder.requireID())
+                .with(\.$user)
+                .with(\.$cupcake)
+                .first()
+            else {
+                throw Abort(.notFound)
+            }
+            
+            
+            return try order.read()
         }
         
         /// Fetch orders saved int the database for send back to user.
@@ -56,11 +66,6 @@ extension Order {
             }
             
             let orders = try await ordersQuery
-                .group(.or) { group in
-                    group
-                        .filter(\.$status == .ordered)
-                        .filter(\.$status == .readyForDelivery)
-                }
                 .with(\.$user)
                 .with(\.$cupcake)
                 .all()
@@ -80,7 +85,12 @@ extension Order {
             with req: Request,
             and dto: Update
         ) async throws -> (Read, UUID) {
-            guard let order = try await Order.find(dto.id, on: req.db) else {
+            guard let order = try await Order.query(on: req.db)
+                .filter(\.$id, .equal, dto.id)
+                .with(\.$user)
+                .with(\.$cupcake)
+                .first()
+            else {
                 throw Abort(.notFound)
             }
             

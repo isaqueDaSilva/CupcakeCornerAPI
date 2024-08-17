@@ -14,9 +14,9 @@ extension Status {
         
         func prepare(on database: any Database) async throws {
             let _ = try await database.enum(statusSchemaName)
-                .case("ordered")
-                .case("readyForDelivery")
-                .case("delivered")
+                .case(Status.ordered.rawValue)
+                .case(Status.readyForDelivery.rawValue)
+                .case(Status.delivered.rawValue)
                 .create()
         }
         

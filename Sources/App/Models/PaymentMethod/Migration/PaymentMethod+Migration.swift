@@ -14,10 +14,10 @@ extension PaymentMethod {
         
         func prepare(on database: any Database) async throws {
             let _ = try await database.enum(paymentMethodSchemaName)
-                .case("cash")
-                .case("creditCard")
-                .case("debitCard")
-                .case("isAdmin")
+                .case(PaymentMethod.cash.rawValue)
+                .case(PaymentMethod.creditCard.rawValue)
+                .case(PaymentMethod.debitCard.rawValue)
+                .case(PaymentMethod.isAdmin.rawValue)
                 .create()
         }
         

@@ -30,13 +30,12 @@ final class Token: Model, @unchecked Sendable {
     init(
         id: UUID? = nil,
         with jwtID: UUID,
-        and user: User.IDValue,
-        isValid: Bool = true
+        and user: User.IDValue
     ) {
         self.id = id
         self.jwtID = jwtID
         self.$user.id = user
-        self.isValid = isValid
+        self.isValid = true
     }
 }
 

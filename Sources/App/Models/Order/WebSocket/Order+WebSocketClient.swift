@@ -33,7 +33,7 @@ extension Order {
         
         func removeData() { self.data = nil }
         
-        init(id: UUID, role: Role, socket: WebSocket, data: Receive?) {
+        init(id: UUID, role: Role, socket: WebSocket, data: Receive? = nil) {
             self.id = id
             self.role = role
             self.socket = socket

@@ -12,9 +12,12 @@ extension User {
         func boot(routes: any RoutesBuilder) throws {
             let userPath = routes.grouped("user")
             let protectedRoute = tokenProtectedRoute(with: userPath)
-            let deleteUserRoute = protectedRoute.grouped(DeleteUserMiddleware())
             
             userPath.post("create") { request async throws -> HTTPStatus in
+                try await create(with: request)
+            }
+            
+            protectedRoute.post("create-admin") { request async throws -> HTTPStatus in
                 try await create(with: request)
             }
             
@@ -26,15 +29,26 @@ extension User {
                 try await update(with: request)
             }
             
-            deleteUserRoute.delete("delete") { request async throws -> HTTPStatus in
+            protectedRoute.delete("delete") { request async throws -> HTTPStatus in
                 try await delete(with: request)
             }
         }
         
-        private func getUserId(with req: Request) throws -> UUID {
+        private func getUserId(with req: Request) async throws -> UUID {
             let jwtToken = try req.auth.require(Payload.self)
             
-            return jwtToken.userID
+            let token = try await Token.query(on: req.db)
+                .filter(\.$jwtID, .equal, jwtToken.id)
+                .with(\.$user)
+                .first()
+            
+            guard let token else {
+                throw Abort(.unauthorized)
+            }
+        
+            let userID = token.$user.id
+            
+            return userID
         }
         
         @Sendable
@@ -49,7 +63,7 @@ extension User {
         
         @Sendable
         private func get(with req: Request) async throws -> Read {
-            let userID = try getUserId(with: req)
+            let userID = try await getUserId(with: req)
             
             let user = try await Service.get(with: req, and: userID)
             
@@ -58,7 +72,7 @@ extension User {
         
         @Sendable
         private func update(with req: Request) async throws -> Read {
-            let userID = try getUserId(with: req)
+            let userID = try await getUserId(with: req)
             let updatedUserDTO = try req.content.decode(Update.self)
             
             let updatedUser = try await Service.update(with: req, userID, and: updatedUserDTO)
@@ -68,7 +82,7 @@ extension User {
         
         @Sendable
         private func delete(with req: Request) async throws -> HTTPStatus {
-            let userID = try getUserId(with: req)
+            let userID = try await getUserId(with: req)
             
             let status = try await Service.delete(with: req, and: userID)
             

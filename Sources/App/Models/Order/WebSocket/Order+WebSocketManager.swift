@@ -33,36 +33,61 @@ extension Order {
             _ request: Request,
             _ userID: UUID,
             and userRole: Role
-        ) {
-            wsChannel.onBinary { [weak self] (webSocket, buffer) async in
-                guard let self else { return }
-                
-                self.binaryMessage(
-                    with: buffer,
-                    webSocket,
-                    request,
-                    userID,
-                    and: userRole
+        ) async {
+            let newClient = WSClient(
+                id: userID,
+                role: userRole,
+                socket: wsChannel
+            )
+            
+            self.add(newClient)
+            
+            do {
+                try await getAllOrders(
+                    with: request,
+                    wsChannel,
+                    userRole,
+                    and: userID
                 )
+            } catch {
+                try? await wsChannel.close(code: .unacceptableData)
+                print("Falied to updated order with \(error.localizedDescription)")
             }
+        }
+    }
+}
+
+extension WSManager {
+    func messageHandler(
+        with wsChannel: WebSocket,
+        and request: Request
+    ) {
+        wsChannel.onBinary { [weak self] (webSocket, buffer) async in
+            guard let self else { return }
             
-            wsChannel.onText { [weak self] webSocket, _ in
-                guard let self else { return }
-                
-                self.textMessage(with: webSocket)
-            }
+            self.binaryMessage(
+                with: buffer,
+                wsChannel,
+                and: request
+            )
+        }
+        
+        wsChannel.onText { [weak self] _, _ in
+            guard let self else { return }
             
-            wsChannel.onPing { [weak self] webSocket, _ in
-                guard let self else { return }
-                
-                self.sendPongMessage(in: webSocket)
-            }
+            self.textMessage(with: wsChannel)
+        }
+        
+        wsChannel.onPing { [weak self] webSocket, _ in
+            guard let self else { return }
             
-            wsChannel.onClose.whenComplete { [weak self] webSocket in
-                guard let self else { return }
-                
-                self.close(wsChannel)
-            }
+            self.sendPongMessage(in: webSocket)
+        }
+        
+        wsChannel.onClose.whenComplete { [weak self] webSocket in
+            guard let self else { return }
+            
+            self.close(wsChannel)
         }
     }
 }
@@ -74,9 +99,7 @@ extension WSManager {
     private func binaryMessage(
         with buffer: ByteBuffer,
         _ webSocket: WebSocket,
-        _ request: Request,
-        _ userID: UUID,
-        and userRole: Role
+        and request: Request
     ) {
         // Checks if has some message valid for send
         if let message = try? buffer.decodeWebSocketMessage(Order.Receive.self) {
@@ -85,16 +108,7 @@ extension WSManager {
                 client.insert(message.data)
                 self.notify(client, with: request)
             } else {
-                let client = WSClient(
-                    id: userID,
-                    role: userRole,
-                    socket: webSocket,
-                    data: message.data
-                )
-                
-                self.add(client)
-                
-                self.notify(client, with: request)
+                close(webSocket)
             }
         }
     }
@@ -149,9 +163,7 @@ extension WSManager {
     ///   - client: The client's model that is make a request.
     ///   - request: The current request that's using for perform some actions into database.
     private func notify(_ client: WSClient, with request: Request) {
-        let clientID = client.getID()
         let webSocket = client.getSocket()
-        let clientRole = client.getRole()
         
         // Checks if the channel is active
         guard !webSocket.isClosed else { return }
@@ -166,20 +178,6 @@ extension WSManager {
         }
         
         switch data {
-        case .get:
-            Task {
-                do {
-                    try await getAllOrders(
-                        with: request, 
-                        webSocket,
-                        clientRole,
-                        and: clientID
-                    )
-                } catch {
-                    try? await webSocket.close(code: .unacceptableData)
-                    print("Falied to send orders with \(error.localizedDescription)")
-                }
-            }
         case .update(let updatedOrder):
             Task {
                 do {
@@ -248,11 +246,12 @@ extension WSManager {
             throw Abort(.unauthorized)
         }
         
-        let (updatedOrder, userID) = try await OrderService.update(
+        let (order, userID) = try await OrderService.update(
             with: request,
             and: updatedOrderDTO
         )
         
+        let updatedOrder: Order.Send = .update(order)
         let message = Message(data: updatedOrder)
         let admins = self.admins
         let userClient = self.get(by: userID)
@@ -261,11 +260,11 @@ extension WSManager {
             self.send(message, in: admin.getSocket())
         }
         
-        client.removeData()
-        
         guard let userClient else { return }
         
         self.send(message, in: userClient.getSocket())
+        
+        client.removeData()
     }
 }
 
@@ -332,6 +331,7 @@ extension WSManager {
     
     private func add(_ client: WSClient) {
         clients.append(client)
+        print("New client add, \(client.getID()) \(client.getRole())")
     }
     
     private func get(by webSocket: WebSocket) -> WSClient? {

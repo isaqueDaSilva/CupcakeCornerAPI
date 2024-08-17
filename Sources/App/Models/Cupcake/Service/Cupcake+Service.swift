@@ -19,7 +19,7 @@ extension Cupcake {
             let cupcakeID = UUID(uuidString: id)
             
             guard let cupcake = try await Cupcake.find(cupcakeID, on: req.db) else {
-                throw Abort(.notFound, reason: "This cupcake not exist in Database")
+                throw Abort(.notFound)
             }
             
             return cupcake

@@ -28,7 +28,10 @@ extension Order {
         private func getUserInfo(with req: Request) async throws -> (UUID, Role) {
             let jwtToken = try req.auth.require(Payload.self)
             
-            guard let user = try await User.find(jwtToken.userID, on: req.db) else {
+            guard let user = try await User.query(on: req.db)
+                .filter(\.$id, .equal, jwtToken.userID)
+                .first()
+            else {
                 throw Abort(.notFound)
             }
             
@@ -47,10 +50,11 @@ extension Order {
             
             let newOrderDTO = try req.content.decode(Create.self)
             
-            guard let cupcake = try await Cupcake.find(
-                newOrderDTO.cupcakeID,
-                on: req.db
-            ), let cupackeID = try? cupcake.requireID() else {
+            guard let cupcake = try await Cupcake.query(on: req.db)
+                .filter(\.$id, .equal, newOrderDTO.cupcakeID)
+                .first(),
+                  let cupcakeID = try? cupcake.requireID()
+            else {
                 throw Abort(.notFound)
             }
             
@@ -59,7 +63,7 @@ extension Order {
                 newOrderDTO,
                 userRole,
                 userID,
-                and: cupackeID
+                and: cupcakeID
             )
             
             wsManager.send(order, for: userID)
@@ -73,15 +77,10 @@ extension Order {
         ) {
             Task {
                 do {
-                    let jwtToken = try req.auth.require(Payload.self)
-                    guard let user = try await User.find(jwtToken.userID, on: req.db),
-                          let userID = try? user.requireID()
-                    else {
-                        try await wsChannel.close(code: .unexpectedServerError)
-                        return
-                    }
+                    let (userID, userRole) = try await getUserInfo(with: req)
                     
-                    wsManager.connect(with: wsChannel, req, userID, and: user.role)
+                    await wsManager.connect(with: wsChannel, req, userID, and: userRole)
+                    wsManager.messageHandler(with: wsChannel, and: req)
                 } catch {
                     print("Failed to connect in this Web Socket channel.")
                 }

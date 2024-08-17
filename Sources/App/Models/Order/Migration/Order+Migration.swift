@@ -22,8 +22,8 @@ extension Order {
             
             try await database.schema(orderSchemaName)
                 .id()
-                .field(FieldName.user.key, .uuid, .references(userSchemaName, idFieldKey))
-                .field(FieldName.cupcake.key, .uuid, .references(cupcakeSchemaName, idFieldKey))
+                .field(FieldName.user.key, .uuid, .references(userSchemaName, idFieldKey, onDelete: .setNull))
+                .field(FieldName.cupcake.key, .uuid, .references(cupcakeSchemaName, idFieldKey, onDelete: .setNull))
                 .field(FieldName.quantity.key, .int, .required)
                 .field(FieldName.extraFrosting.key, .bool, .required)
                 .field(FieldName.addSprinkles.key, .bool, .required)

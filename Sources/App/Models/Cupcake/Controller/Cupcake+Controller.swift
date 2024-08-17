@@ -42,10 +42,6 @@ extension Cupcake {
         
         @Sendable
         private func create(with req: Request) async throws -> Read {
-            guard try await User.isAdmin(with: req) else {
-                throw Abort(.unauthorized)
-            }
-            
             try Create.validate(content: req)
             let dto = try req.content.decode(Create.self)
             
@@ -61,10 +57,6 @@ extension Cupcake {
         
         @Sendable
         private func update(with req: Request) async throws -> Read {
-            guard try await User.isAdmin(with: req) else {
-                throw Abort(.unauthorized)
-            }
-            
             let cupcakeID = try getID(with: req)
             let dto = try req.content.decode(Update.self)
             
@@ -73,10 +65,6 @@ extension Cupcake {
         
         @Sendable
         private func delete(with req: Request) async throws -> HTTPStatus {
-            guard try await User.isAdmin(with: req) else {
-                throw Abort(.unauthorized)
-            }
-            
             try req.auth.require(Payload.self)
             let cupcakeID = try getID(with: req)
             
