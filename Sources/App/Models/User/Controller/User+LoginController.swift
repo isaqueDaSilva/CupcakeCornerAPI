@@ -14,7 +14,7 @@ extension User {
             let userProtectedRoute = userProtectedRoute(by: routes)
             let tokenProtectedRoute = tokenProtectedRoute(with: routes)
             
-            userProtectedRoute.post("login", ":type") { request async throws -> JWTToken in
+            userProtectedRoute.post("login", ":type") { request async throws -> LoginResult in
                 try await login(with: request)
             }
             
@@ -28,7 +28,7 @@ extension User {
         }
         
         @Sendable
-        private func login(with req: Request) async throws -> JWTToken {
+        private func login(with req: Request) async throws -> LoginResult {
             let user = try req.auth.require(User.self)
             
             let typeString = req.parameters.get("type")
@@ -57,7 +57,10 @@ extension User {
             let token = Token(with: payloadToken.id, and: userID)
             try await token.save(on: req.db)
             
-            return JWTToken(from: jwtToken)
+            let userProfile = try user.read()
+            let jwt = JWTToken(from: jwtToken)
+            
+            return .init(jwtToken: jwt, userProfile: userProfile)
         }
         
         @Sendable
