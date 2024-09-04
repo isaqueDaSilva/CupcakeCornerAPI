@@ -19,7 +19,7 @@ extension Cupcake {
                 .field(FieldName.coverImage.key, .data, .required)
                 .field(FieldName.ingredients.key, .array(of: .string), .required)
                 .field(FieldName.price.key, .double, .required)
-                .field(FieldName.createdAt.key, .date)
+                .field(FieldName.createdAt.key, .string)
                 .unique(on: FieldName.flavor.key)
                 .create()
         }
