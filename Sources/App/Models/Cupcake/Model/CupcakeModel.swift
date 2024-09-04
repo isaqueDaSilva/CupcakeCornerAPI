@@ -27,7 +27,7 @@ final class Cupcake: DatabaseModel, @unchecked Sendable {
     @Field(key: FieldName.price.key)
     var price: Double
     
-    @Timestamp(key: FieldName.createdAt.key, on: .create)
+    @Timestamp(key: FieldName.createdAt.key, on: .create, format: .iso8601)
     var createAt: Date?
     
     init() { }
